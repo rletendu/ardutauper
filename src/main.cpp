@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <IRremote.hpp>
+#include <LowPower.h>
 
 #define LED_RED_PIN 13
 #define LED_GREEN_PIN 11
@@ -18,11 +19,18 @@ static inline void ledRedOn() {
 static inline void ledRedOff() {
   digitalWrite(LED_RED_PIN, LOW);
 }
+static inline void ledRedToggle() {
+  digitalWrite(LED_RED_PIN, !digitalRead(LED_RED_PIN));
+} 
+
 static inline void ledGreenOn() {
   digitalWrite(LED_GREEN_PIN, HIGH);
 }
 static inline void ledGreenOff() {
   digitalWrite(LED_GREEN_PIN, LOW);
+}
+static inline void ledGreenToggle() {
+  digitalWrite(LED_GREEN_PIN, !digitalRead(LED_GREEN_PIN));
 }
 static inline void relayOn() {
   digitalWrite(RELAY_PIN, HIGH);
@@ -121,6 +129,9 @@ void loop() {
     }  
     if (millis()-armed_time>20000) { // 20 seconds to confirm arming
       Serial.println("System armed");
+      buzzerOn();
+      delay(5000);
+      buzzerOff();
       current_state = STATE_ARMED;
     } 
     if (rxcount) {
@@ -132,9 +143,9 @@ void loop() {
 
   case STATE_ARMED:
     if (time%500<250) {
-      ledRedOff();
-    } else {
       ledRedOn();
+    } else {
+      ledRedOff();
     }
     if (triggered) {
       Serial.println("Trigger detected! Firing!");
@@ -149,9 +160,20 @@ void loop() {
     break;
 
   case STATE_FIRED:
+ 
+    LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
+    for(int i=0; i<5; i++) {
+      ledRedToggle();
+      ledGreenToggle();
+      delay(200);
+    } 
+    
+    ledGreenOff();
+    ledRedOff();
     break;
 
   default:
+  
     break;
   }
   
