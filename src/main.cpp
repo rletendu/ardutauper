@@ -1,8 +1,12 @@
 #include <Arduino.h>
+#define DECODE_NEC
 #include <IRremote.hpp>
 #include <LowPower.h>
-
 #include "hardware.h"
+
+// Buffer and protocol configuration
+#define RX_BUFFER_SIZE 10
+
 
 ardutauper_state current_state = STATE_OFF;
 static bool triggered = false;

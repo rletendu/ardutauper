@@ -9,9 +9,6 @@
 #define BUZZER_PIN 4
 #define SENSOR_PIN 3
 
-// Buffer and protocol configuration
-#define RX_BUFFER_SIZE 10
-#define DECODE_NEC
 
 // State machine enumeration
 enum ardutauper_state {
