@@ -12,9 +12,13 @@ ardutauper_state current_state = STATE_OFF;
 static bool triggered = false;
 
 void trigger(void);
+void ir_wakeup(void);
 
 void setup() {
-  
+  cli();  // Disable interrupts
+  CLKPR = 0x80;  // Enable prescaler change
+  CLKPR = 0x01;  // Set prescaler to /2 (16MHz -> 8MHz)
+  sei();  // Enable interrupts
   Serial.begin(9600);
   pinMode(SENSOR_PIN, INPUT_PULLUP);
   pinMode(LED_RED_PIN, OUTPUT);
@@ -25,6 +29,8 @@ void setup() {
   buzzerOff();
   IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK); // Start the receiver}
   attachInterrupt(digitalPinToInterrupt(SENSOR_PIN), trigger, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(IR_RECEIVE_PIN), ir_wakeup, FALLING);
+  detachInterrupt(digitalPinToInterrupt(IR_RECEIVE_PIN));
   ledGreenOff();
   ledRedOff();
 }
@@ -138,4 +144,8 @@ void loop() {
 void trigger(void) {
   if (triggered) return; // Avoid multiple triggers
   triggered = true;
+}
+
+void ir_wakeup() {
+  // This function is called when IR activity wakes up the MCU
 }
